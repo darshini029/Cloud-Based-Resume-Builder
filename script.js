@@ -1,0 +1,23 @@
+let token=localStorage.getItem("cr_token"),user=JSON.parse(localStorage.getItem("cr_user")||"null"),currentId=null,resumes=[];
+const $=x=>document.getElementById(x);
+function api(url,opt={}){opt.headers=opt.headers||{};if(token)opt.headers.Authorization="Bearer "+token;return fetch(url,opt)}
+function showPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$(p).classList.remove("hidden");document.querySelectorAll(".nav").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("title").textContent=p==="builder"?"Resume Builder":p==="saved"?"Saved Resumes":"About";if(p==="saved")loadResumes()}
+document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{let m=b.dataset.mode;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".register").forEach(x=>x.style.display=m==="register"?"block":"none");$("authBtn").textContent=m==="register"?"Create Account":"Login";$("authForm").dataset.mode=m});
+$("authForm").dataset.mode="login";
+$("authForm").onsubmit=async e=>{e.preventDefault();let mode=e.target.dataset.mode,body={email:$("email").value,password:$("password").value};if(mode==="register")body.name=$("name").value;let r=await fetch("/api/auth/"+mode,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}),d=await r.json();if(!r.ok){$("authMsg").textContent=d.message;return}token=d.token;user=d.user;localStorage.setItem("cr_token",token);localStorage.setItem("cr_user",JSON.stringify(user));start()};
+function fields(){return{fullName:$("fullName").value,role:$("role").value,email:$("email2").value,phone:$("phone").value,location:$("location").value,summary:$("summary").value,education:$("education").value,skills:$("skills").value,experience:$("experience").value,projects:$("projects").value,certifications:$("certifications").value}}
+function fill(d={}){for(let k of Object.keys(fields()))if($(k))$(k).value=d[k]||"";render()}
+document.querySelectorAll("input,textarea").forEach(x=>x.addEventListener("input",render));
+function render(){let d=fields();$("resumePreview").innerHTML=`<div class="preview-inner"><h1>${esc(d.fullName||"Your Name")}</h1><p><b>${esc(d.role||"Professional Title")}</b> · ${esc(d.email)} · ${esc(d.phone)} · ${esc(d.location)}</p>${section("Profile",d.summary)}${section("Education",d.education)}${section("Skills",d.skills)}${section("Experience",d.experience)}${section("Projects",d.projects)}${section("Certifications",d.certifications)}</div>`}
+function section(t,v){return v?`<h2>${t}</h2><p>${esc(v)}</p>`:""}
+function esc(s=""){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+async function saveResume(){let data=fields(),title=$("resumeTitle").value||"My Resume",r;if(currentId)r=await api("/api/resumes/"+currentId,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({title,data})});else r=await api("/api/resumes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title,data})});let d=await r.json();if(r.ok){currentId=d._id;$("saveMsg").textContent="Saved to cloud ✓";setTimeout(()=>$("saveMsg").textContent="",1800)}else $("saveMsg").textContent=d.message||"Save failed"}
+async function loadResumes(){let r=await api("/api/resumes");if(r.ok){resumes=await r.json();$("savedList").innerHTML=resumes.map(x=>`<div class="resume-item"><div><b>${esc(x.title)}</b><small><br>${new Date(x.updatedAt).toLocaleString()}</small></div><div><button class="secondary" onclick="openResume('${x._id}')">Open</button><button class="secondary" onclick="deleteResume('${x._id}')">Delete</button></div></div>`).join("")||"<p>No saved resumes yet.</p>"}}
+function openResume(id){let r=resumes.find(x=>x._id===id);if(!r)return;currentId=id;$("resumeTitle").value=r.title;fill(r.data);showPage("builder")}
+async function deleteResume(id){if(!confirm("Delete this resume?"))return;await api("/api/resumes/"+id,{method:"DELETE"});loadResumes()}
+function newResume(){currentId=null;$("resumeTitle").value="My Resume";fill({});showPage("builder")}
+function printResume(){window.print()}
+$("logout").onclick=()=>{localStorage.clear();location.reload()}
+function start(){ $("auth").classList.add("hidden");$("app").classList.remove("hidden");render();loadResumes()}
+if(token)start();

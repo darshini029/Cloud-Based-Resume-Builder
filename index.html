@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CloudResume — Resume Builder</title><link rel="stylesheet" href="style.css"></head><body>
+<div id="auth" class="auth"><div class="authbox"><div class="logo">☁️ CloudResume</div><p>Build, save and manage professional resumes online.</p>
+<div class="tabs"><button class="tab active" data-mode="login">Login</button><button class="tab" data-mode="register">Register</button></div>
+<form id="authForm"><input id="name" class="register" placeholder="Full name"><input id="email" type="email" placeholder="Email" required><input id="password" type="password" placeholder="Password" required><button class="primary" id="authBtn">Login</button></form><div id="authMsg"></div></div></div>
+<div id="app" class="hidden"><aside><div class="logo">☁️ CloudResume</div><nav>
+<button class="nav active" data-page="builder">📝 Resume Builder</button><button class="nav" data-page="saved">☁️ Saved Resumes</button><button class="nav" data-page="about">ℹ️ About</button></nav><button id="logout" class="logout">Log out</button></aside>
+<main><header><div><h1 id="title">Resume Builder</h1><p>Create a clean resume and save it securely in the cloud.</p></div><button class="primary" onclick="saveResume()">☁ Save Resume</button></header>
+<section id="builder" class="page"><div class="layout"><div class="card form">
+<h2>Resume Details</h2><input id="resumeTitle" placeholder="Resume name" value="My Resume">
+<h3>Personal Information</h3><input id="fullName" placeholder="Full name"><input id="role" placeholder="Professional title (e.g. Software Developer)"><input id="email2" placeholder="Email"><input id="phone" placeholder="Phone"><input id="location" placeholder="City, Country">
+<h3>Professional Summary</h3><textarea id="summary" placeholder="Write a short professional summary"></textarea>
+<h3>Education</h3><textarea id="education" placeholder="Degree, college, year"></textarea>
+<h3>Skills</h3><textarea id="skills" placeholder="Python, Java, HTML, CSS, Communication"></textarea>
+<h3>Experience</h3><textarea id="experience" placeholder="Company — Role — Duration&#10;Describe your responsibilities and achievements"></textarea>
+<h3>Projects</h3><textarea id="projects" placeholder="Project name — short description"></textarea>
+<h3>Certifications</h3><textarea id="certifications" placeholder="Certification name — issuer"></textarea>
+<button class="primary" onclick="saveResume()">Save Resume</button><button class="secondary" onclick="printResume()">Download / Print PDF</button><span id="saveMsg"></span>
+</div><div class="preview card"><div id="resumePreview"></div></div></div></section>
+<section id="saved" class="page hidden"><div class="card"><div class="head"><h2>Saved Resumes</h2><button class="primary" onclick="newResume()">+ New Resume</button></div><div id="savedList"></div></div></section>
+<section id="about" class="page hidden"><div class="card"><h2>About CloudResume</h2><p>CloudResume is a simple cloud-based resume builder for students and job seekers.</p><div class="features"><b>☁ Cloud Save</b><b>🎨 Clean Templates</b><b>📄 Print to PDF</b><b>🔐 User Accounts</b></div></div></section>
+</main></div><script src="script.js"></script></body></html>
